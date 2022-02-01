@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: msm-k8s-svc-helper-v1
+spec:
+  selector:
+    matchLabels:
+      app: msm-k8s-svc-helper
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: msm-k8s-svc-helper
+    spec:
+      containers:
+      - name: msm-k8s-svc-helper
+        image: msm-k8s-svc-helper:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9898
+            name: http
