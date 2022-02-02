@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: msm-k8s-svc-helper
+  namespace: default
+  labels:
+    app: msm-k8s-svc-helper
+spec:
+  selector:
+    app: msm-k8s-svc-helper
+  ports:
+  - name: msm-k8s-svc-helper
+    port: 9898
