@@ -15,21 +15,15 @@ type API struct {
 	endpoints              map[string]func(http.ResponseWriter, *http.Request)
 }
 
-func (api *API) rootHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("kubernetes api-server client api, its a mouthfull")
-}
-
 // Given a service clusterIP, return the src endpoints behind it
 func (api *API) svcEndpointHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	switch r.Method {
 	case http.MethodGet:
-		log.Println("parsing request params.")
 		resource := r.URL.Query().Get("resource")
 
-		urls := api.GetUrls(resource)
+		urls := api.GetInternalURLs(resource)
 		log.Printf("request handled: %s -> : %v", resource, urls)
 
 		err := json.NewEncoder(w).Encode(urls)
@@ -54,7 +48,7 @@ func (api *API) addEndpoints() {
 func StartAPI(listenAddr string) {
 	api := API{}
 	api.addEndpoints()
-	api.NewUrlHandler()
+	api.InitializeUrlHandler()
 
 	// start http handlers
 	for url, handler := range api.endpoints {

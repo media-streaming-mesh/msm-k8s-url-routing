@@ -8,7 +8,7 @@ metadata:
     app: msm-k8s-svc-helper
 spec:
   selector:
-    app: kubmsm-k8s-svc-helper
+    app: msm-k8s-svc-helper
   ports:
   - name: msm-k8s-svc-helper
     port: 9898

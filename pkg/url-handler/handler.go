@@ -14,18 +14,11 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type Service struct {
-	ClusterIp net.IP
-	Endpoints []net.IP
-}
-
 type UrlHandler struct {
-	clientset *kubernetes.Clientset
+	clientset kubernetes.Interface
 }
 
-func (uh *UrlHandler) NewUrlHandler() {
-	u := &UrlHandler{}
-
+func (uh *UrlHandler) InitializeUrlHandler() {
 	restConfig, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -36,7 +29,17 @@ func (uh *UrlHandler) NewUrlHandler() {
 		log.Fatalf("error creating out of cluster config: %v", err)
 	}
 
-	u.clientset = clientset
+	uh.clientset = clientset
+	uh.varifyK8sApi()
+
+	uh.log("connected to api-server")
+}
+
+func (uh *UrlHandler) varifyK8sApi() {
+	_, err := uh.clientset.CoreV1().Nodes().List(context.TODO(), v1.ListOptions{})
+	if err != nil {
+		log.Fatalf("could not connect to api-server: %v", err)
+	}
 }
 
 func (uh *UrlHandler) log(format string, args ...interface{}) {
@@ -44,20 +47,20 @@ func (uh *UrlHandler) log(format string, args ...interface{}) {
 	log.Println("[K8S API Client] " + fmt.Sprintf(format, args...))
 }
 
-func (uh *UrlHandler) GetUrls(Url string) []string {
+func (uh *UrlHandler) GetInternalURLs(Url string) []string {
 	uh.log("url provided: %s", Url)
 	u, err := url.Parse(Url)
 
 	if err != nil {
-		empty := make([]string, 1)
 		uh.log("could not parse url: %v", err)
-		return empty
+		return []string{}
 	}
 
 	// lookup IP and port
 	endpoints := uh.resolveEndpoints(u.Hostname(), u.Port(), u.Path)
 	urls := make([]string, len(endpoints))
 
+	// add the original path to the resolved internal endpoint
 	for i, endpoint := range endpoints {
 		cpy := u
 		cpy.Host = endpoint
@@ -72,7 +75,7 @@ func (uh *UrlHandler) resolveEndpoints(hostname string, port string, path string
 		addresses   []string
 	)
 
-	uh.log("get resources for %s, %s, %s", hostname, port, path)
+	uh.log("url components %s, %s, %s", hostname, port, path)
 
 	if hostname == "localhost" {
 		if len(path) > 0 {
@@ -97,7 +100,6 @@ func (uh *UrlHandler) resolveEndpoints(hostname string, port string, path string
 		if uh.isNodeIP(addresses[0]) {
 			uh.log("IP matches node IP")
 			if len(path) > 0 {
-				uh.log("path is %s", path)
 				serviceName = path[1:]
 			}
 		}
@@ -106,7 +108,7 @@ func (uh *UrlHandler) resolveEndpoints(hostname string, port string, path string
 	// else if single ip is a clusterIP, return endpoints
 	if serviceName == "" {
 		var err error
-		serviceName, err = uh.getServiceName(addresses[0]) // addresses is a slice of length 1
+		serviceName, err = uh.getServiceName(addresses[0])
 
 		// if ip is not clusterIP, return ip
 		if err != nil {
@@ -205,10 +207,10 @@ func (uh *UrlHandler) resolveHost(host string) []string {
 			uh.log("could not resolve resource to ips: %s, returning given resource: %s", err.Error(), host)
 			return []string{host}
 		}
-		uh.log("resolution: ", addrs)
+		uh.log("resolution: %s", addrs[0])
 		return addrs
 	}
 	// dns not needed, already an ip
-	uh.log("resolution: ", ip)
+	uh.log("resolution: %v", ip)
 	return []string{ip.String()}
 }

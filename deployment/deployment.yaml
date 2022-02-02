@@ -17,7 +17,7 @@ spec:
       containers:
       - name: msm-k8s-svc-helper
         image: msm-k8s-svc-helper:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         ports:
           - containerPort: 9898
             name: http

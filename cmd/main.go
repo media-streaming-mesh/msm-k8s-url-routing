@@ -11,8 +11,9 @@ type Server interface {
 	StartAPI(listenAddr string)
 }
 
+const listenAddr = ":9898"
+
 func main() {
-	listenAddr := ":9898"
 	log.Printf("Starting server on %s", listenAddr)
 
 	// start http server
