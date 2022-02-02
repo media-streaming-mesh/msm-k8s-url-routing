@@ -21,7 +21,7 @@ func (api *API) svcEndpointHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		resource := r.URL.Query().Get("resource")
+		resource := r.URL.Query().Get("url")
 
 		urls := api.GetInternalURLs(resource)
 		log.Printf("request handled: %s -> : %v", resource, urls)
@@ -41,7 +41,7 @@ func (api *API) svcEndpointHandler(w http.ResponseWriter, r *http.Request) {
 // linkEndpoints -> create mapping of url paths to function handlers
 func (api *API) addEndpoints() {
 	api.endpoints = map[string]func(http.ResponseWriter, *http.Request){
-		"/svc/resources": api.svcEndpointHandler,
+		"/apiv1/url-routing": api.svcEndpointHandler,
 	}
 }
 

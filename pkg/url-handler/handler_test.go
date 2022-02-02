@@ -35,8 +35,8 @@ func createMockService(svc *apiv1.Service, clientset kubernetes.Interface, ns st
 
 func TestGetInternalURLs(t *testing.T) {
 	urlTests := map[string][]string{
-		"http://localhost:9898/svc/resources?resource=http://kubernetes:443":                       []string{"http://"},
-		"http://localhost:9898/svc/resources?resource=http://msm-k8s-svc-helper:9898/svc/resource": []string{"http://10.1.0.21:9898/svc/resource"},
+		"http://localhost:9898/apiv1/url-routing?url=http://kubernetes:443":                          []string{"http://"},
+		"http://localhost:9898/apiv1/url-routing?url=http://http://localhost:9898/apiv1/url-routing": []string{"9898/apiv1/url-routing"},
 	}
 
 	for url, expectedResp := range urlTests {
