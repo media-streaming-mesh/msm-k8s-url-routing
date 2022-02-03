@@ -5,6 +5,11 @@ IMG ?= msm-k8s-svc-helper:latest
 binary:
 	go build -o bin/main ./cmd
 
+make grpc-proto:
+	protoc --go_out=. --go_opt=paths=source_relative \
+    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+    pkg/api/gRPC/endpoint.proto
+
 # Build the docker image
 docker-build:
 	docker build . -t ${IMG}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package gRPC_api;
+
+option go_package = "github.com/msm-k8s-svc-helper/pkg/api/gRPC;gRPC_api";
+
+service GetEndpoint {
+	rpc Send (EndpointRequest) returns (EndpointResponse);
+}
+
+message EndpointRequest {
+	string req = 1;
+}
+
+message EndpointResponse {
+	repeated string res = 1;
+}
