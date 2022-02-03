@@ -17,6 +17,7 @@ spec:
       containers:
       - name: msm-k8s-svc-helper
         image: msm-k8s-svc-helper:latest
+        args: ["-transport", "grpc"]
         imagePullPolicy: Never
         ports:
           - containerPort: 9898
